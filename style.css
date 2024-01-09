@@ -1,0 +1,163 @@
+*{
+    padding: 0;
+    margin: 0;
+    font-family: Open Sans;
+}
+
+.header {
+    background-image: url(images/BG.png);
+    background-repeat: no-repeat;
+    height: 100%;
+background-size: cover;
+}
+.headerr{
+    color: white;
+    display:flex;
+ padding-top: 30px;  
+justify-content: space-evenly;
+}
+.header p{
+ color: white;
+    font-size: 23px;
+    
+}
+.searchbar{
+    display: flex;
+    gap: 50px;
+    margin-left: -280px;
+   
+}
+/* .logo{
+    padding-left: 160px;
+} */
+
+.barbutton {
+display: flex;
+gap: 20px;
+}
+
+.back-img{
+    background-image: url(images/image\ 26.png);
+    background-repeat: no-repeat;
+    height: 437px;
+    margin-top: 60px;
+    background-size: cover;
+}
+.text{
+     font-size: 20px;
+     color: white;
+padding-left: 200px;
+padding-top: 50px;
+}
+
+.text button
+{
+     background-color: rgba(238, 188, 73, 1);
+    padding: 18px;
+    font-family: Montserrat;
+    font-size: 20px;
+    border-radius: 4px;
+    margin-top: 25px;
+    border: none;
+}
+
+.text-s{
+    color: white;
+    text-align: center;
+margin-top: 35px;
+}
+.btn{
+    padding: 11px 30px 11px 30px;
+    color: white;
+    border: none;
+    font-family: Montserrat;   
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 4px;
+    background-color:  rgba(15, 84, 115, 1);
+    
+}
+.btn2{
+    padding: 11px 30px 11px 30px;
+    border: none;
+    font-size: 20px;
+    font-weight: 600;
+    margin-left: 15px;
+    font-family: Montserrat; 
+    border-radius: 4px;
+    background-color: rgba(238, 188, 73, 1);
+
+}
+.input-berlin input{
+    border-radius: 4px;
+    width: 572px;
+    height: 44px;
+    font-size: 20px;
+        border: 2px solid gray;
+    padding-left: 20px;
+    color: rgba(255, 255, 255, 1);
+    opacity: 70%;
+}
+.input-berlin{
+ display: flex;
+ justify-content:center;  gap: 20px;
+}
+
+.chevron{
+    display: flex;
+    background-color: rgba(18, 24, 44, 0.8);
+    color: white;
+    justify-content: flex-start; 
+    gap: 50px;
+    border-radius: 5px;
+    margin: 35px 525px 0 525px;
+    padding: 10px;
+    
+}
+.chevron p {
+font-size: 16px;
+color: rgb(192, 192, 192);
+}
+.location{
+    color: white;
+    font-size: 20px;
+    padding-left: 524px;
+    padding-top: 50px;
+}
+.hotel{
+    padding-top: 50px;
+    display: flex;
+    justify-content: space-around;
+}
+.hotel h2{
+color: white;
+font-size: 24px;
+}
+.hotel p{
+    color: white;
+    font-size: 20px;
+    }
+
+    .images5{
+        margin-top: 50px;
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    
+    .images55{
+        margin-top: 50px;
+        display: flex;
+        padding-bottom: 100px;
+        justify-content: space-evenly;
+    }
+
+    .footer{
+        background-color: rgba(15, 84, 115, 1);
+        color: white;
+        display: flex;
+        font-size: 20px;
+        padding: 50px 0 60px 608px;
+        gap: 155px;
+      
+    }
