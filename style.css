@@ -1,163 +1,246 @@
-*{
-    padding: 0;
-    margin: 0;
-    font-family: Open Sans;
+* {
+  padding: 0;
+  margin: 0;
+  font-family: sans-serif    ;
+
 }
 
 .header {
-    background-image: url(images/BG.png);
-    background-repeat: no-repeat;
-    height: 100%;
-background-size: cover;
+  background-image: url(images/BG.png);
+  background-repeat: no-repeat;
+  height: 100%;
+  background-size: cover;
 }
-.headerr{
-    color: white;
-    display:flex;
- padding-top: 30px;  
-justify-content: space-evenly;
-}
-.header p{
- color: white;
-    font-size: 23px;
-    
-}
-.searchbar{
-    display: flex;
-    gap: 50px;
-    margin-left: -280px;
-   
-}
-/* .logo{
-    padding-left: 160px;
-} */
-
-.barbutton {
-display: flex;
-gap: 20px;
+.headerr {
+  color: white;
+  display: flex;
+  padding-top: 30px;
+  justify-content: space-around;
 }
 
-.back-img{
-    background-image: url(images/image\ 26.png);
-    background-repeat: no-repeat;
-    height: 437px;
-    margin-top: 60px;
-    background-size: cover;
-}
-.text{
-     font-size: 20px;
-     color: white;
-padding-left: 200px;
-padding-top: 50px;
+.searchbar {
+  display: flex;
+  gap: 50px;
+  margin-left: -150px;
+  color: white;
+  font-size: 23px;
 }
 
-.text button
-{
-     background-color: rgba(238, 188, 73, 1);
-    padding: 18px;
-    font-family: Montserrat;
-    font-size: 20px;
-    border-radius: 4px;
-    margin-top: 25px;
-    border: none;
+.barbutton  {
+  display: flex;
+  gap: 20px;
+  color: white;
+font-size: 20px;
 }
 
-.text-s{
-    color: white;
-    text-align: center;
-margin-top: 35px;
-}
-.btn{
-    padding: 11px 30px 11px 30px;
-    color: white;
-    border: none;
-    font-family: Montserrat;   
-    font-size: 20px;
-    font-weight: 600;
-    border-radius: 4px;
-    background-color:  rgba(15, 84, 115, 1);
-    
-}
-.btn2{
-    padding: 11px 30px 11px 30px;
-    border: none;
-    font-size: 20px;
-    font-weight: 600;
-    margin-left: 15px;
-    font-family: Montserrat; 
-    border-radius: 4px;
-    background-color: rgba(238, 188, 73, 1);
+
+.back-img {
+  background-image: url(images/image\ 26.png);
+
+  background-position: center ;
+  background-size: cover;
+  margin-top: 60px;
 
 }
-.input-berlin input{
-    border-radius: 4px;
-    width: 572px;
-    height: 44px;
-    font-size: 20px;
-        border: 2px solid gray;
-    padding-left: 20px;
-    color: rgba(255, 255, 255, 1);
-    opacity: 70%;
+.text {
+  padding: 80px 0  200px 200px;
+  color: white;
+
 }
-.input-berlin{
- display: flex;
- justify-content:center;  gap: 20px;
+.text p {
+  font-size: 45px;
+  font-weight: 600;
+}
+.text button {
+  background-color: rgba(238, 188, 73, 1);
+font-weight: 600;
+  font-family: Montserrat;
+  font-size: 20px;
+  border-radius: 4px;
+  margin-top: 25px;
+  width: 224px;
+  height: 60px;
+  border: none;
 }
 
-.chevron{
-    display: flex;
-    background-color: rgba(18, 24, 44, 0.8);
-    color: white;
-    justify-content: flex-start; 
-    gap: 50px;
-    border-radius: 5px;
-    margin: 35px 525px 0 525px;
-    padding: 10px;
-    
+.text-s {
+  color: white;
+  text-align: center;
+  margin-top: 35px;
 }
-.chevron p {
-font-size: 16px;
-color: rgb(192, 192, 192);
+.btn {
+  padding: 11px 30px 11px 30px;
+  color: white;
+  border: none;
+  font-family: Montserrat;
+  font-size: 20px;
+  font-weight: 600;
+  border-radius: 4px;
+  background-color: rgba(15, 84, 115, 1);
 }
-.location{
-    color: white;
-    font-size: 20px;
-    padding-left: 524px;
-    padding-top: 50px;
+.btn2 {
+  padding: 11px 30px 11px 30px;
+  border: none;
+  font-size: 20px;
+  font-weight: 600;
+  margin-left: 15px;
+  font-family: Montserrat;
+  border-radius: 4px;
+  background-color: rgba(238, 188, 73, 1);
 }
-.hotel{
-    padding-top: 50px;
-    display: flex;
-    justify-content: space-around;
+.input-berlin input {
+  border-radius: 4px;
+  width: 572px;
+  height: 44px;
+  font-size: 20px;
+  border: 2px solid gray;
+  padding-left: 20px;
+background-color: transparent;
+  opacity: 70%;
 }
-.hotel h2{
-color: white;
-font-size: 24px;
+.input-berlin {
+  display: flex;
+   gap: 20px;
 }
-.hotel p{
-    color: white;
-    font-size: 20px;
-    }
+.container{
+  background-color: rgba(18, 24, 44, 0.8);
+  max-width: 817px;
+  margin: 0 auto;
+  display: flex;
+  gap: 66px;
+  border-radius: 4px;
+  padding: 20px;
+  margin-top: 15px;
+}
+.card{
+  max-width: 150px;
 
-    .images5{
-        margin-top: 50px;
-        display: flex;
-        justify-content: space-evenly;
-    }
+}
+.card-content{
+  display: flex;
+  color: gray;
+  justify-content: space-between;
+  width: 155px;
 
-    
-    .images55{
-        margin-top: 50px;
-        display: flex;
-        padding-bottom: 100px;
-        justify-content: space-evenly;
-    }
+}
+.card-content bi {
+margin-left: auto;  
+}
+.para{
+  color: white;
+}
 
-    .footer{
-        background-color: rgba(15, 84, 115, 1);
-        color: white;
-        display: flex;
-        font-size: 20px;
-        padding: 50px 0 60px 608px;
-        gap: 155px;
-      
-    }
+
+.location {
+  color: rgb(141, 141, 141);
+  font-size: 15px;
+margin: auto;
+width: 862px;
+padding-top: 36px;
+}
+.hotel {
+  padding-top: 50px;
+  display: flex;
+  justify-content: space-between;
+ width: 80%;
+ margin: auto;
+
+}
+.hotel h2 {
+  color: white;
+  font-size: 24px;
+}
+.hotel p {
+  color: white;
+  font-size: 20px;
+}
+
+.images5 {
+  margin-top: 50px;
+  display: flex;
+  gap: 16px;
+width: 100%;
+position: relative;
+}
+.images01 h1{
+  font-size: 20px;
+}
+.tegal{
+width: 20%;
+}
+.tegal  img{
+  filter: opacity(0.7);
+  width: 100%;
+  height: 100%;
+
+
+}
+.images0 {
+  margin-top: 50px;
+  display: flex;
+  gap: 16px;
+}
+.images0 h1{
+  font-size: 20px;
+}
+.images01 {
+  margin-top: 50px;
+  display: flex;
+  gap: 16px;
+}
+.images55 {
+  margin-top: 50px;
+  display: flex;
+  padding-bottom: 100px;
+  gap: 16px;
+}
+.images55 h1{
+  font-size: 20px;
+  margin-top: 34px;
+}
+
+
+
+.images55 img {
+  width: 100%;
+}
+.images0 img {
+  width: 100%;
+}
+.images01 img {
+  width: 100%;
+}
+
+.images-text{
+  color:rgba(255, 255, 255, 1);
+  margin: -100px 18px;
+  position: absolute;
+}
+.support{
+  font-size: 20px;
+  font-weight: 600;
+}
+.images-text p{
+  color: rgb(209, 209, 209);
+  font-size: 12px;
+  font-weight: 400;
+}
+.images-text2 p{
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+.images-text2{
+  color:rgba(255, 255, 255, 1);
+  margin: -100px 38px;
+  position: absolute;
+}
+.footer {
+  background-color: rgba(15, 84, 115, 1);
+  color: white;
+  display: flex;
+  font-size: 20px;
+  justify-content: center;
+  gap: 100px;
+  padding: 30px;
+}
