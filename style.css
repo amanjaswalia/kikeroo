@@ -29,7 +29,7 @@
 .barbutton  {
   display: flex;
   gap: 20px;
-  color: white;
+  color: white;    padding-top: 5px;
 font-size: 20px;
 }
 
@@ -96,7 +96,8 @@ font-weight: 600;
   border: 2px solid gray;
   padding-left: 20px;
 background-color: transparent;
-  opacity: 70%;
+ 
+  color:white;
 }
 .input-berlin {
   display: flex;
@@ -135,10 +136,10 @@ margin-left: auto;
   color: rgb(141, 141, 141);
   font-size: 15px;
 margin: auto;
-width: 862px;
+max-width: 862px;
 padding-top: 36px;
 }
-.hotel {
+.text2 {
   padding-top: 50px;
   display: flex;
   justify-content: space-between;
@@ -146,15 +147,31 @@ padding-top: 36px;
  margin: auto;
 
 }
-.hotel h2 {
+.text2 h2 {
   color: white;
   font-size: 24px;
 }
-.hotel p {
+.text2 p {
   color: white;
   font-size: 20px;
 }
 
+.text0 {
+  padding-top: 50px;
+  display: flex;
+  justify-content: space-between;
+ width: 80%;
+ margin: auto;
+
+}
+.text0 h2 {
+  color: white;
+  font-size: 24px;
+}
+.text0 p {
+  color: white;
+  font-size: 20px;
+}
 .images5 {
   margin-top: 50px;
   display: flex;
@@ -243,4 +260,141 @@ width: 20%;
   justify-content: center;
   gap: 100px;
   padding: 30px;
+}
+.footer-img img{
+  margin-left: 150px;
+}
+
+
+
+@media(max-width:1200px){
+  .searchbar{
+    display: flex;
+    gap: 50px;
+    margin-left: 9px;
+    color: white;
+    font-size: 23px;
+}
+.images-text2 h1{
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+.images-text2
+{
+  margin: -67px 38px;
+}
+.images55 h1 {
+  font-size: 16px;
+}
+.images01 h1 {
+  font-size: 13px;
+}
+.footer-img img {
+  margin-left: 1px;
+  width: 100%;
+}
+}
+ 
+
+@media(max-width:866px)
+{
+  .searchbar {
+    display: flex;
+    gap: 24px;
+    margin-left: 1px;
+    color: white;
+    font-size: 14px;
+    padding-top: 40px;
+    position: absolute;
+}
+.headerr{
+  position: relative;
+}
+.input-berlin{
+
+  display: unset;
+
+}
+.input-berlin input{
+width: unset;
+}
+.location {
+  text-align: center;
+  padding-top: 19px;
+}
+.button2{
+  margin-top: 20px;
+}
+.images55
+{
+  display: none;
+}
+.text2{
+  display: none;
+}
+.text{
+   padding: 19px 0 74px 20px;
+  } 
+  .text p {
+    font-size: 22px;
+  }
+  .text button {
+    background-color: rgba(238, 188, 73, 1);
+    font-weight: 600;
+    font-family: Montserrat;
+    font-size: 16px;
+    border-radius: 4px;
+    margin-top: 25px;
+    width: 168px;
+    height: 43px;
+    border: none;
+}
+.tegal{
+  margin: 20px;
+  width: unset;
+}
+.images5{
+  display: unset;
+}
+
+.text-s{
+  margin-top: 30px;
+}
+.button2{
+  margin-top: 20px;
+}
+.images0
+{
+  display: unset;
+}
+.images01{
+  display: none;
+}
+.footer{
+  /* justify-content: unset; */
+  gap: 26px;
+  margin-top: -20px;
+  font-size: 13px;
+  padding: 24px;
+}
+.support{
+  font-size: 13px;
+}
+.container {
+ max-width: none;
+ gap: 12px;
+}
+.card-content {
+ 
+  width: unset;
+  font-size: 14px;
+
+}
+.in-put{
+  padding-bottom: 7px;
+}
+.para{
+  font-size: 12px;
+}
 }
