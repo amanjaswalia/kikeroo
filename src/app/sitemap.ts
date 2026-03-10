@@ -1,80 +1,53 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
+import { routing } from '@/i18n/routing';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://kikeroo.com'
+  const baseUrl = 'https://kikeroo.com';
+  const locales = routing.locales;
+  const defaultLocale = routing.defaultLocale;
 
-  return [
+  const pages = [
+    { path: '', changeFrequency: 'daily' as const, priority: 1 },
+    { path: '/hotels', changeFrequency: 'daily' as const, priority: 0.9 },
+    { path: '/events', changeFrequency: 'daily' as const, priority: 0.9 },
+    { path: '/activities', changeFrequency: 'daily' as const, priority: 0.9 },
+    { path: '/places', changeFrequency: 'daily' as const, priority: 0.9 },
+    { path: '/about', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/support', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/contact', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/careers', changeFrequency: 'weekly' as const, priority: 0.6 },
+    { path: '/login', changeFrequency: 'yearly' as const, priority: 0.5 },
+    { path: '/signup', changeFrequency: 'yearly' as const, priority: 0.5 },
+    { path: '/terms', changeFrequency: 'yearly' as const, priority: 0.3 },
+    { path: '/privacy', changeFrequency: 'yearly' as const, priority: 0.3 },
     {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/hotels`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/events`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/activities`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/places`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/support`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/careers`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/signup`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
+      path: '/cookie-policy',
+      changeFrequency: 'yearly' as const,
       priority: 0.3,
     },
-    {
-      url: `${baseUrl}/privacy`,
+  ];
+
+  const entries: MetadataRoute.Sitemap = [];
+
+  for (const page of pages) {
+    const alternates: Record<string, string> = {};
+    for (const locale of locales) {
+      alternates[locale] =
+        locale === defaultLocale
+          ? `${baseUrl}${page.path}`
+          : `${baseUrl}/${locale}${page.path}`;
+    }
+
+    entries.push({
+      url: `${baseUrl}${page.path}`,
       lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
-  ]
+      changeFrequency: page.changeFrequency,
+      priority: page.priority,
+      alternates: {
+        languages: alternates,
+      },
+    });
+  }
+
+  return entries;
 }
