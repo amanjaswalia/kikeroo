@@ -10,13 +10,19 @@ import PlaceCard from '@/components/PlaceCard';
 import Testimonials from '@/components/Testimonials';
 import Gallery from '@/components/Gallery';
 import Footer from '@/components/Footer';
-import { hotels, events, activities, places } from '@/lib/data';
+import { prisma } from '@/lib/prisma';
 
 export default async function Home() {
   const t = await getTranslations('Home');
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+  const [hotels, events, activities, places] = await Promise.all([
+    prisma.hotel.findMany({ take: 5 }),
+    prisma.event.findMany({ take: 5 }),
+    prisma.activity.findMany({ take: 5 }),
+    prisma.place.findMany({ take: 5 }),
+  ]);
+
+  const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'short',
@@ -42,7 +48,7 @@ export default async function Home() {
         <section className="max-w-7xl mx-auto px-5 md:px-8 mt-8">
           <SectionHeader title={t('seeAll')} sectionTitle="Hotels" link="/hotels" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-5">
-            {hotels.slice(0, 5).map((hotel) => (
+            {hotels.map((hotel) => (
               <HotelCard
                 key={hotel.id}
                 image={hotel.image}
@@ -57,7 +63,7 @@ export default async function Home() {
         <section className="max-w-7xl mx-auto px-5 md:px-8 mt-10">
           <SectionHeader title={t('seeAll')} sectionTitle="Events" link="/events" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-5">
-            {events.slice(0, 5).map((event) => (
+            {events.map((event) => (
               <EventCard
                 key={event.id}
                 image={event.image}
@@ -73,7 +79,7 @@ export default async function Home() {
         <section className="max-w-7xl mx-auto px-5 md:px-8 mt-10 hidden md:block">
           <SectionHeader title={t('seeAll')} sectionTitle="Activities" link="/activities" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-5">
-            {activities.slice(0, 5).map((activity) => (
+            {activities.map((activity) => (
               <ActivityCard
                 key={activity.id}
                 image={activity.image}
@@ -89,7 +95,7 @@ export default async function Home() {
         <section className="max-w-7xl mx-auto px-5 md:px-8 mt-10 pb-20 hidden md:block">
           <SectionHeader title={t('seeAll')} sectionTitle="Places" link="/places" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-5">
-            {places.slice(0, 5).map((place) => (
+            {places.map((place) => (
               <PlaceCard
                 key={place.id}
                 image={place.image}

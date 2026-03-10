@@ -1,11 +1,11 @@
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/PageLayout';
-import { activities } from '@/lib/data';
+import type { Activity } from '@/lib/types';
 import { FiSearch, FiCalendar } from 'react-icons/fi';
 
 function ActivitiesContent() {
@@ -18,38 +18,30 @@ function ActivitiesContent() {
   const [searchQuery, setSearchQuery] = useState(locationFilter);
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'date'>('default');
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = useMemo(() => [...new Set(activities.map(a => a.category))], []);
+  const fetchActivities = useCallback(async () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('q', searchQuery);
+    if (categoryFilter) params.set('category', categoryFilter);
+    if (startDateParam) params.set('startDate', startDateParam);
+    if (endDateParam) params.set('endDate', endDateParam);
+    if (sortBy !== 'default') params.set('sort', sortBy);
 
-  const filteredActivities = useMemo(() => {
-    let result = [...activities];
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (activity) =>
-          activity.title.toLowerCase().includes(q) ||
-          activity.location.toLowerCase().includes(q)
-      );
-    }
-
-    if (categoryFilter) {
-      result = result.filter(a => a.category === categoryFilter);
-    }
-
-    if (startDateParam) {
-      result = result.filter(a => a.date >= startDateParam);
-    }
-    if (endDateParam) {
-      result = result.filter(a => a.date <= endDateParam);
-    }
-
-    if (sortBy === 'price-asc') result.sort((a, b) => a.price - b.price);
-    if (sortBy === 'price-desc') result.sort((a, b) => b.price - a.price);
-    if (sortBy === 'date') result.sort((a, b) => a.date.localeCompare(b.date));
-
-    return result;
+    const res = await fetch(`/api/activities?${params.toString()}`);
+    const json = await res.json();
+    setActivities(json.data);
+    setCategories(json.categories);
+    setLoading(false);
   }, [searchQuery, categoryFilter, startDateParam, endDateParam, sortBy]);
+
+  useEffect(() => {
+    const timer = setTimeout(fetchActivities, 300);
+    return () => clearTimeout(timer);
+  }, [fetchActivities]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -69,7 +61,7 @@ function ActivitiesContent() {
               {t('title')}
             </h1>
             <p className="text-slate-500 dark:text-white/40 text-sm mt-1">
-              {t('activitiesFound', { count: filteredActivities.length })}
+              {t('activitiesFound', { count: activities.length })}
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
@@ -106,61 +98,73 @@ function ActivitiesContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredActivities.map((activity) => (
-            <div
-              key={activity.id}
-              className="group relative cursor-pointer overflow-hidden rounded-xl h-[340px]"
-            >
-              <Image
-                src={activity.image}
-                alt={activity.title}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-              {/* Price badge */}
-              <div className="absolute top-4 left-4 bg-kik-darker/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-bold">
-                &euro;{activity.price}
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <span className="inline-block bg-kik-blue/80 backdrop-blur-sm text-white text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md mb-2">
-                  {activity.category}
-                </span>
-                <p className="text-white/60 text-xs tracking-wide">
-                  {activity.location}
-                </p>
-                <h3 className="text-white text-lg font-bold mt-0.5 leading-tight">
-                  {activity.title}
-                </h3>
-                <div className="flex items-center gap-1.5 mt-2">
-                  <FiCalendar className="w-3 h-3 text-kik-gold" />
-                  <p className="text-kik-gold text-xs font-medium">
-                    {formatDate(activity.date)}
-                  </p>
-                </div>
-              </div>
-              <div className="absolute top-4 right-4 bg-kik-gold text-kik-darker px-3.5 py-1.5 rounded-lg text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 shadow-lg">
-                {t('bookNow')}
-              </div>
+        {loading ? (
+          <div className="animate-pulse">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-[340px] bg-slate-200 dark:bg-white/5 rounded-xl"></div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {filteredActivities.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-slate-500 dark:text-white/40 text-lg">
-              {t('noResults')}
-            </p>
-            <button
-              onClick={() => { setSearchQuery(''); setCategoryFilter(''); setSortBy('default'); }}
-              className="mt-5 bg-kik-gold text-kik-darker px-7 py-2.5 rounded-xl font-semibold text-sm hover:bg-kik-gold-light transition-colors shadow-lg shadow-kik-gold/20"
-            >
-              {t('clearSearch')}
-            </button>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {activities.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="group relative cursor-pointer overflow-hidden rounded-xl h-[340px]"
+                >
+                  <Image
+                    src={activity.image}
+                    alt={activity.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  {/* Price badge */}
+                  <div className="absolute top-4 left-4 bg-kik-darker/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-bold">
+                    &euro;{activity.price}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                    <span className="inline-block bg-kik-blue/80 backdrop-blur-sm text-white text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md mb-2">
+                      {activity.category}
+                    </span>
+                    <p className="text-white/60 text-xs tracking-wide">
+                      {activity.location}
+                    </p>
+                    <h3 className="text-white text-lg font-bold mt-0.5 leading-tight">
+                      {activity.title}
+                    </h3>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <FiCalendar className="w-3 h-3 text-kik-gold" />
+                      <p className="text-kik-gold text-xs font-medium">
+                        {formatDate(activity.date)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="absolute top-4 right-4 bg-kik-gold text-kik-darker px-3.5 py-1.5 rounded-lg text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 shadow-lg">
+                    {t('bookNow')}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {activities.length === 0 && (
+              <div className="text-center py-20">
+                <p className="text-slate-500 dark:text-white/40 text-lg">
+                  {t('noResults')}
+                </p>
+                <button
+                  onClick={() => { setSearchQuery(''); setCategoryFilter(''); setSortBy('default'); }}
+                  className="mt-5 bg-kik-gold text-kik-darker px-7 py-2.5 rounded-xl font-semibold text-sm hover:bg-kik-gold-light transition-colors shadow-lg shadow-kik-gold/20"
+                >
+                  {t('clearSearch')}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

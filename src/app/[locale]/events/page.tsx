@@ -1,11 +1,11 @@
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/PageLayout';
-import { events } from '@/lib/data';
+import type { Event } from '@/lib/types';
 import { FiSearch, FiCalendar } from 'react-icons/fi';
 
 function EventsContent() {
@@ -18,39 +18,30 @@ function EventsContent() {
   const [searchQuery, setSearchQuery] = useState(locationFilter);
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'date'>('default');
+  const [events, setEvents] = useState<Event[]>([]);
+  const [eventTypes, setEventTypes] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const eventTypes = useMemo(() => [...new Set(events.map(e => e.type))], []);
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('q', searchQuery);
+    if (typeFilter) params.set('type', typeFilter);
+    if (startDateParam) params.set('startDate', startDateParam);
+    if (endDateParam) params.set('endDate', endDateParam);
+    if (sortBy !== 'default') params.set('sort', sortBy);
 
-  const filteredEvents = useMemo(() => {
-    let result = [...events];
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (event) =>
-          event.title.toLowerCase().includes(q) ||
-          event.location.toLowerCase().includes(q)
-      );
-    }
-
-    if (typeFilter) {
-      result = result.filter(e => e.type === typeFilter);
-    }
-
-    // Date range filter
-    if (startDateParam) {
-      result = result.filter(e => e.date >= startDateParam);
-    }
-    if (endDateParam) {
-      result = result.filter(e => e.date <= endDateParam);
-    }
-
-    if (sortBy === 'price-asc') result.sort((a, b) => a.price - b.price);
-    if (sortBy === 'price-desc') result.sort((a, b) => b.price - a.price);
-    if (sortBy === 'date') result.sort((a, b) => a.date.localeCompare(b.date));
-
-    return result;
+    const res = await fetch(`/api/events?${params.toString()}`);
+    const json = await res.json();
+    setEvents(json.data);
+    setEventTypes(json.types);
+    setLoading(false);
   }, [searchQuery, typeFilter, startDateParam, endDateParam, sortBy]);
+
+  useEffect(() => {
+    const timer = setTimeout(fetchEvents, 300);
+    return () => clearTimeout(timer);
+  }, [fetchEvents]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -70,7 +61,7 @@ function EventsContent() {
               {t('title')}
             </h1>
             <p className="text-slate-500 dark:text-white/40 text-sm mt-1">
-              {t('eventsFound', { count: filteredEvents.length })}
+              {t('eventsFound', { count: events.length })}
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
@@ -107,58 +98,70 @@ function EventsContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredEvents.map((event) => (
-            <div
-              key={event.id}
-              className="group relative cursor-pointer overflow-hidden rounded-xl h-[340px]"
-            >
-              <Image
-                src={event.image}
-                alt={event.title}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-              {/* Price badge */}
-              <div className="absolute top-4 left-4 bg-kik-darker/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-bold">
-                &euro;{event.price}
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <span className="inline-block bg-kik-blue/80 backdrop-blur-sm text-white text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md mb-2">
-                  {event.type}
-                </span>
-                <p className="text-white/60 text-xs tracking-wide">
-                  {event.location}
-                </p>
-                <h3 className="text-white text-lg font-bold mt-0.5 leading-tight">
-                  {event.title}
-                </h3>
-                <div className="flex items-center gap-1.5 mt-2">
-                  <FiCalendar className="w-3 h-3 text-kik-gold" />
-                  <p className="text-kik-gold text-xs font-medium">
-                    {formatDate(event.date)}
-                  </p>
-                </div>
-              </div>
+        {loading ? (
+          <div className="animate-pulse">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-[340px] bg-slate-200 dark:bg-white/5 rounded-xl"></div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {filteredEvents.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-slate-500 dark:text-white/40 text-lg">
-              {t('noResults')}
-            </p>
-            <button
-              onClick={() => { setSearchQuery(''); setTypeFilter(''); setSortBy('default'); }}
-              className="mt-5 bg-kik-gold text-kik-darker px-7 py-2.5 rounded-xl font-semibold text-sm hover:bg-kik-gold-light transition-colors shadow-lg shadow-kik-gold/20"
-            >
-              {t('clearSearch')}
-            </button>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {events.map((event) => (
+                <div
+                  key={event.id}
+                  className="group relative cursor-pointer overflow-hidden rounded-xl h-[340px]"
+                >
+                  <Image
+                    src={event.image}
+                    alt={event.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  {/* Price badge */}
+                  <div className="absolute top-4 left-4 bg-kik-darker/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-bold">
+                    &euro;{event.price}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                    <span className="inline-block bg-kik-blue/80 backdrop-blur-sm text-white text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md mb-2">
+                      {event.type}
+                    </span>
+                    <p className="text-white/60 text-xs tracking-wide">
+                      {event.location}
+                    </p>
+                    <h3 className="text-white text-lg font-bold mt-0.5 leading-tight">
+                      {event.title}
+                    </h3>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <FiCalendar className="w-3 h-3 text-kik-gold" />
+                      <p className="text-kik-gold text-xs font-medium">
+                        {formatDate(event.date)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {events.length === 0 && (
+              <div className="text-center py-20">
+                <p className="text-slate-500 dark:text-white/40 text-lg">
+                  {t('noResults')}
+                </p>
+                <button
+                  onClick={() => { setSearchQuery(''); setTypeFilter(''); setSortBy('default'); }}
+                  className="mt-5 bg-kik-gold text-kik-darker px-7 py-2.5 rounded-xl font-semibold text-sm hover:bg-kik-gold-light transition-colors shadow-lg shadow-kik-gold/20"
+                >
+                  {t('clearSearch')}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
