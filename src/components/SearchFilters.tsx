@@ -74,11 +74,15 @@ function Dropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-3 bg-kik-darker/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/40 z-50 min-w-[200px] max-h-[250px] overflow-y-auto">
+        <div
+          className="absolute top-full left-0 mt-3 bg-kik-darker/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/40 z-50 min-w-[200px] max-h-[250px] overflow-y-auto"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           {options.map((option) => (
             <button
               key={option}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 onSelect(option);
                 onToggle();
               }}
@@ -163,7 +167,10 @@ function DatePicker({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-3 bg-kik-darker/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/40 z-50 p-5 min-w-[280px]">
+        <div
+          className="absolute top-full left-0 mt-3 bg-kik-darker/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/40 z-50 p-5 min-w-[280px]"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           <div className="space-y-4">
             <div>
               <label className="text-white/50 text-xs font-medium block mb-1.5">
@@ -269,7 +276,10 @@ function MoreFilters({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-3 bg-kik-darker/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/40 z-50 p-5 min-w-[260px]">
+        <div
+          className="absolute top-full right-0 mt-3 bg-kik-darker/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/40 z-50 p-5 min-w-[260px]"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           <div className="space-y-5">
             <div>
               <h4 className="text-white text-xs font-semibold uppercase tracking-wider mb-2.5">
@@ -429,7 +439,7 @@ export default function SearchFilters({
       )}
 
       {/* Filter Cards */}
-      <div className="bg-white/5 backdrop-blur-md border border-white/10 max-w-[900px] mx-auto flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-10 rounded-2xl p-5 md:p-6">
+      <div className="relative z-20 bg-white/5 backdrop-blur-md border border-white/10 max-w-[900px] mx-auto flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-10 rounded-2xl p-5 md:p-6">
         <Dropdown
           label={t('typeOfSearch')}
           value={searchType.toLowerCase()}

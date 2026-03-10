@@ -1,12 +1,12 @@
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/PageLayout';
-import { hotels } from '@/lib/data';
-import { FiSearch, FiStar, FiX } from 'react-icons/fi';
+import type { Hotel } from '@/lib/types';
+import { FiSearch, FiStar } from 'react-icons/fi';
 
 function HotelsContent() {
   const searchParams = useSearchParams();
@@ -18,65 +18,39 @@ function HotelsContent() {
 
   const [searchQuery, setSearchQuery] = useState(locationFilter);
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'rating'>('default');
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const activeFilters = useMemo(() => filtersParam ? filtersParam.split(',') : [], [filtersParam]);
+  const activeFilters = filtersParam ? filtersParam.split(',') : [];
 
-  const filteredHotels = useMemo(() => {
-    let result = [...hotels];
-
-    // Text search
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (hotel) =>
-          hotel.city.toLowerCase().includes(q) ||
-          hotel.country.toLowerCase().includes(q) ||
-          hotel.name.toLowerCase().includes(q)
-      );
-    }
+  const fetchHotels = useCallback(async () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('q', searchQuery);
+    if (sortBy !== 'default') params.set('sort', sortBy);
 
     // Price range filters
     const priceFilters = activeFilters.filter(f => f.startsWith('$'));
-    if (priceFilters.length > 0) {
-      result = result.filter((hotel) =>
-        priceFilters.some((pf) => {
-          if (pf === '$0-$100') return hotel.price <= 100;
-          if (pf === '$100-$200') return hotel.price > 100 && hotel.price <= 200;
-          if (pf === '$200-$500') return hotel.price > 200 && hotel.price <= 500;
-          if (pf === '$500+') return hotel.price > 500;
-          return true;
-        })
-      );
-    }
+    if (priceFilters.length > 0) params.set('priceRange', priceFilters.join(','));
 
     // Rating filters
     const ratingFilters = activeFilters.filter(f => f.includes('star'));
-    if (ratingFilters.length > 0) {
-      result = result.filter((hotel) =>
-        ratingFilters.some((rf) => {
-          if (rf === '5 stars') return hotel.rating >= 4.8;
-          if (rf === '4+ stars') return hotel.rating >= 4.0;
-          if (rf === '3+ stars') return hotel.rating >= 3.0;
-          return true;
-        })
-      );
-    }
+    if (ratingFilters.length > 0) params.set('rating', ratingFilters[0]);
 
     // Amenity filters
     const amenityFilters = activeFilters.filter(f => ['WiFi', 'Pool', 'Gym', 'Parking', 'Restaurant'].includes(f));
-    if (amenityFilters.length > 0) {
-      result = result.filter((hotel) =>
-        amenityFilters.every((af) => hotel.amenities.includes(af))
-      );
-    }
+    if (amenityFilters.length > 0) params.set('amenities', amenityFilters.join(','));
 
-    // Sorting
-    if (sortBy === 'price-asc') result.sort((a, b) => a.price - b.price);
-    if (sortBy === 'price-desc') result.sort((a, b) => b.price - a.price);
-    if (sortBy === 'rating') result.sort((a, b) => b.rating - a.rating);
+    const res = await fetch(`/api/hotels?${params.toString()}`);
+    const json = await res.json();
+    setHotels(json.data);
+    setLoading(false);
+  }, [searchQuery, sortBy, filtersParam]);
 
-    return result;
-  }, [searchQuery, activeFilters, sortBy]);
+  useEffect(() => {
+    const timer = setTimeout(fetchHotels, 300);
+    return () => clearTimeout(timer);
+  }, [fetchHotels]);
 
   return (
     <div className="bg-gray-50 dark:bg-kik-darker min-h-screen py-14 px-5 md:px-8">
@@ -87,7 +61,7 @@ function HotelsContent() {
               {t('title')}
             </h1>
             <p className="text-slate-500 dark:text-white/40 text-sm mt-1">
-              {t('propertiesFound', { count: filteredHotels.length })}
+              {t('propertiesFound', { count: hotels.length })}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -136,68 +110,80 @@ function HotelsContent() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredHotels.map((hotel) => (
-            <article
-              key={hotel.id}
-              className="group relative cursor-pointer overflow-hidden rounded-xl h-[340px]"
-              itemScope
-              itemType="https://schema.org/Hotel"
-            >
-              <Image
-                src={hotel.image}
-                alt={`${hotel.name} in ${hotel.city}, ${hotel.country}`}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-              {/* Price badge */}
-              <div className="absolute top-4 left-4 bg-kik-darker/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-bold">
-                &euro;{hotel.price}<span className="text-white/50 text-xs font-normal">/night</span>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <p
-                  className="text-white/60 text-xs font-medium tracking-wider uppercase"
-                  itemProp="addressCountry"
-                >
-                  {hotel.country}
-                </p>
-                <h2
-                  className="text-white text-lg font-bold mt-0.5"
-                  itemProp="name"
-                >
-                  {hotel.name}
-                </h2>
-                <p className="text-white/50 text-xs mt-0.5">{hotel.city}</p>
-                <div className="flex items-center gap-1.5 mt-2">
-                  <FiStar className="w-3.5 h-3.5 text-kik-gold fill-kik-gold" />
-                  <span className="text-white text-xs font-semibold">{hotel.rating.toFixed(1)}</span>
-                  <span className="text-white/40 text-xs">
-                    &middot; {hotel.amenities.slice(0, 3).join(', ')}
-                  </span>
-                </div>
-              </div>
-              <div className="absolute top-4 right-4 bg-kik-gold text-kik-darker px-3.5 py-1.5 rounded-lg text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 shadow-lg">
-                {t('viewDetails')}
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {filteredHotels.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-slate-500 dark:text-white/40 text-lg">
-              {t('noResults')}
-            </p>
-            <button
-              onClick={() => { setSearchQuery(''); setSortBy('default'); }}
-              className="mt-5 bg-kik-gold text-kik-darker px-7 py-2.5 rounded-xl font-semibold text-sm hover:bg-kik-gold-light transition-colors shadow-lg shadow-kik-gold/20"
-            >
-              {t('clearSearch')}
-            </button>
+        {loading ? (
+          <div className="animate-pulse">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-[340px] bg-slate-200 dark:bg-white/5 rounded-xl"></div>
+              ))}
+            </div>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {hotels.map((hotel) => (
+                <article
+                  key={hotel.id}
+                  className="group relative cursor-pointer overflow-hidden rounded-xl h-[340px]"
+                  itemScope
+                  itemType="https://schema.org/Hotel"
+                >
+                  <Image
+                    src={hotel.image}
+                    alt={`${hotel.name} in ${hotel.city}, ${hotel.country}`}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  {/* Price badge */}
+                  <div className="absolute top-4 left-4 bg-kik-darker/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-bold">
+                    &euro;{hotel.price}<span className="text-white/50 text-xs font-normal">/night</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                    <p
+                      className="text-white/60 text-xs font-medium tracking-wider uppercase"
+                      itemProp="addressCountry"
+                    >
+                      {hotel.country}
+                    </p>
+                    <h2
+                      className="text-white text-lg font-bold mt-0.5"
+                      itemProp="name"
+                    >
+                      {hotel.name}
+                    </h2>
+                    <p className="text-white/50 text-xs mt-0.5">{hotel.city}</p>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <FiStar className="w-3.5 h-3.5 text-kik-gold fill-kik-gold" />
+                      <span className="text-white text-xs font-semibold">{hotel.rating.toFixed(1)}</span>
+                      <span className="text-white/40 text-xs">
+                        &middot; {hotel.amenities.slice(0, 3).join(', ')}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="absolute top-4 right-4 bg-kik-gold text-kik-darker px-3.5 py-1.5 rounded-lg text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 shadow-lg">
+                    {t('viewDetails')}
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {hotels.length === 0 && (
+              <div className="text-center py-20">
+                <p className="text-slate-500 dark:text-white/40 text-lg">
+                  {t('noResults')}
+                </p>
+                <button
+                  onClick={() => { setSearchQuery(''); setSortBy('default'); }}
+                  className="mt-5 bg-kik-gold text-kik-darker px-7 py-2.5 rounded-xl font-semibold text-sm hover:bg-kik-gold-light transition-colors shadow-lg shadow-kik-gold/20"
+                >
+                  {t('clearSearch')}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

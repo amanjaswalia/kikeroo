@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hotel {
+  id        Int      @id @default(autoincrement())
+  image     String
+  country   String
+  city      String
+  name      String
+  price     Int
+  rating    Float
+  amenities String[]
+
+  @@map("hotels")
+}
+
+model Event {
+  id       Int      @id @default(autoincrement())
+  image    String
+  location String
+  title    String
+  date     DateTime
+  type     String
+  price    Int
+
+  @@map("events")
+}
+
+model Activity {
+  id       Int      @id @default(autoincrement())
+  image    String
+  location String
+  title    String
+  date     DateTime
+  price    Int
+  category String
+
+  @@map("activities")
+}
+
+model Place {
+  id      Int    @id @default(autoincrement())
+  image   String
+  name    String
+  country String
+
+  @@map("places")
+}

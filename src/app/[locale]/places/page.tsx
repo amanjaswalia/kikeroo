@@ -1,11 +1,11 @@
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/PageLayout';
-import { places } from '@/lib/data';
+import type { Place } from '@/lib/types';
 import { FiSearch } from 'react-icons/fi';
 
 function PlacesContent() {
@@ -15,27 +15,27 @@ function PlacesContent() {
 
   const [searchQuery, setSearchQuery] = useState(locationFilter);
   const [countryFilter, setCountryFilter] = useState<string>('');
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [countries, setCountries] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const countries = useMemo(() => [...new Set(places.map(p => p.country))].sort(), []);
+  const fetchPlaces = useCallback(async () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('q', searchQuery);
+    if (countryFilter) params.set('country', countryFilter);
 
-  const filteredPlaces = useMemo(() => {
-    let result = [...places];
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (place) =>
-          place.name.toLowerCase().includes(q) ||
-          place.country.toLowerCase().includes(q)
-      );
-    }
-
-    if (countryFilter) {
-      result = result.filter(p => p.country === countryFilter);
-    }
-
-    return result;
+    const res = await fetch(`/api/places?${params.toString()}`);
+    const json = await res.json();
+    setPlaces(json.data);
+    setCountries(json.countries);
+    setLoading(false);
   }, [searchQuery, countryFilter]);
+
+  useEffect(() => {
+    const timer = setTimeout(fetchPlaces, 300);
+    return () => clearTimeout(timer);
+  }, [fetchPlaces]);
 
   return (
     <div className="bg-gray-50 dark:bg-kik-darker min-h-screen py-14 px-5 md:px-8">
@@ -46,7 +46,7 @@ function PlacesContent() {
               {t('title')}
             </h1>
             <p className="text-slate-500 dark:text-white/40 text-sm mt-1">
-              {t('destinationsFound', { count: filteredPlaces.length })}
+              {t('destinationsFound', { count: places.length })}
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
@@ -73,44 +73,56 @@ function PlacesContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredPlaces.map((place) => (
-            <div
-              key={place.id}
-              className="group relative cursor-pointer overflow-hidden rounded-xl h-[320px]"
-            >
-              <Image
-                src={place.image}
-                alt={place.name}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="text-white text-xl font-bold">{place.name}</h3>
-                <p className="text-white/60 text-sm mt-0.5">{place.country}</p>
-              </div>
-              <div className="absolute top-4 right-4 bg-kik-gold text-kik-darker px-3.5 py-1.5 rounded-lg text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 shadow-lg">
-                {t('explore')}
-              </div>
+        {loading ? (
+          <div className="animate-pulse">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-[320px] bg-slate-200 dark:bg-white/5 rounded-xl"></div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {filteredPlaces.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-slate-500 dark:text-white/40 text-lg">
-              {t('noResults')}
-            </p>
-            <button
-              onClick={() => { setSearchQuery(''); setCountryFilter(''); }}
-              className="mt-5 bg-kik-gold text-kik-darker px-7 py-2.5 rounded-xl font-semibold text-sm hover:bg-kik-gold-light transition-colors shadow-lg shadow-kik-gold/20"
-            >
-              {t('clearSearch')}
-            </button>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {places.map((place) => (
+                <div
+                  key={place.id}
+                  className="group relative cursor-pointer overflow-hidden rounded-xl h-[320px]"
+                >
+                  <Image
+                    src={place.image}
+                    alt={place.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <h3 className="text-white text-xl font-bold">{place.name}</h3>
+                    <p className="text-white/60 text-sm mt-0.5">{place.country}</p>
+                  </div>
+                  <div className="absolute top-4 right-4 bg-kik-gold text-kik-darker px-3.5 py-1.5 rounded-lg text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 shadow-lg">
+                    {t('explore')}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {places.length === 0 && (
+              <div className="text-center py-20">
+                <p className="text-slate-500 dark:text-white/40 text-lg">
+                  {t('noResults')}
+                </p>
+                <button
+                  onClick={() => { setSearchQuery(''); setCountryFilter(''); }}
+                  className="mt-5 bg-kik-gold text-kik-darker px-7 py-2.5 rounded-xl font-semibold text-sm hover:bg-kik-gold-light transition-colors shadow-lg shadow-kik-gold/20"
+                >
+                  {t('clearSearch')}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
