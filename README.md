@@ -1,6 +1,6 @@
 # Kikeroo - Group Travel Planning Platform
 
-A modern, SEO-friendly travel booking platform built with Next.js 16, designed to make group trip planning easy and enjoyable.
+A modern, multilingual travel booking platform built with Next.js 16, designed to make group trip planning easy and enjoyable. Supports 6 languages, light/dark themes, Stripe payments, and GDPR-compliant cookie consent.
 
 > **"Travel Together, Create Memories Forever"**
 
@@ -18,17 +18,13 @@ A modern, SEO-friendly travel booking platform built with Next.js 16, designed t
 - [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
-- [Developer Guide](#developer-guide)
-- [Component Architecture](#component-architecture)
-- [Styling Guide](#styling-guide)
-- [State Management](#state-management)
-- [API Integration](#api-integration)
-- [Performance](#performance)
-- [Security](#security)
-- [Accessibility](#accessibility)
-- [Testing](#testing)
+- [Internationalization (i18n)](#internationalization-i18n)
+- [Theme System](#theme-system)
+- [Stripe Payments](#stripe-payments)
+- [Cookie Consent](#cookie-consent)
+- [Environment Variables](#environment-variables)
+- [Pages Reference](#pages-reference)
 - [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 
 ---
@@ -42,10 +38,18 @@ A modern, SEO-friendly travel booking platform built with Next.js 16, designed t
 | Event Discovery | Find concerts, shows, and live events |
 | Activity Booking | Book adventure experiences and activities |
 | Place Exploration | Discover amazing travel destinations |
-| User Authentication | Secure login and registration |
-| Responsive Design | Optimized for mobile, tablet, and desktop |
-| SEO Optimized | Full metadata, sitemap, and structured data |
+| Multi-Language | 6 languages: English, French, German, Spanish, Dutch, Italian |
+| Light/Dark Theme | Toggle between light and dark mode |
+| Stripe Payments | Secure checkout via Stripe |
+| Cookie Consent | GDPR-compliant cookie banner with granular controls |
+| WhatsApp Support | Floating WhatsApp button for quick contact |
+| Emergency Banner | Dismissible travel advisory banner |
+| Testimonials | Customer review showcase |
+| Image Gallery | Travel photo gallery with hover effects |
+| Contact Page | Contact form with Google Maps embed |
+| SEO Optimized | Full metadata, sitemap with hreflang, structured data |
 | PWA Ready | Progressive Web App manifest included |
+| Responsive Design | Optimized for mobile, tablet, and desktop |
 
 ---
 
@@ -57,7 +61,11 @@ A modern, SEO-friendly travel booking platform built with Next.js 16, designed t
 | [React](https://react.dev/) | 19.1 | UI component library |
 | [TypeScript](https://www.typescriptlang.org/) | 5.8 | Type-safe JavaScript |
 | [Tailwind CSS](https://tailwindcss.com/) | 4.1 | Utility-first CSS framework |
-| [React Icons](https://react-icons.github.io/react-icons/) | 5.5 | Icon library (Feather icons) |
+| [next-intl](https://next-intl.dev/) | 4.x | Internationalization for Next.js |
+| [next-themes](https://github.com/pacocoursey/next-themes) | 0.4 | Light/dark theme management |
+| [Stripe](https://stripe.com/) | 17.x | Payment processing |
+| [js-cookie](https://github.com/js-cookie/js-cookie) | 3.x | Cookie management for consent |
+| [React Icons](https://react-icons.github.io/react-icons/) | 5.5 | Icon library |
 
 ---
 
@@ -67,9 +75,8 @@ A modern, SEO-friendly travel booking platform built with Next.js 16, designed t
 
 | Requirement | Version |
 |-------------|---------|
-| Node.js | 18.18+ (24.x supported) |
+| Node.js | 18.18+ |
 | npm / yarn / pnpm | Latest |
-| Git | Latest |
 
 ### Installation
 
@@ -83,6 +90,7 @@ npm install
 
 # Setup environment
 cp .env.example .env.local
+# Edit .env.local with your keys (see Environment Variables)
 
 # Start development server
 npm run dev
@@ -106,612 +114,304 @@ npm run lint     # Run ESLint
 
 ```
 kikeroo/
+├── messages/                     # Translation files
+│   ├── en.json                   # English (default)
+│   ├── fr.json                   # French
+│   ├── de.json                   # German
+│   ├── es.json                   # Spanish
+│   ├── nl.json                   # Dutch
+│   └── it.json                   # Italian
 │
-├── 📁 public/                    # Static assets
-│   ├── 📁 images/                # Image files
-│   └── 📄 manifest.json          # PWA manifest
+├── public/
+│   ├── images/                   # Static images
+│   └── manifest.json             # PWA manifest
 │
-├── 📁 src/
-│   ├── 📁 app/                   # Next.js App Router
-│   │   ├── 📁 (routes)/          # Page routes
-│   │   │   ├── 📁 about/
-│   │   │   ├── 📁 activities/
-│   │   │   ├── 📁 careers/
-│   │   │   ├── 📁 events/
-│   │   │   ├── 📁 hotels/
-│   │   │   ├── 📁 login/
-│   │   │   ├── 📁 places/
-│   │   │   ├── 📁 privacy/
-│   │   │   ├── 📁 signup/
-│   │   │   ├── 📁 support/
-│   │   │   └── 📁 terms/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx            # Minimal root layout
+│   │   ├── globals.css           # Global styles + theme variables
+│   │   ├── robots.ts             # Robots.txt generator
+│   │   ├── sitemap.ts            # Sitemap generator (all locales)
 │   │   │
-│   │   ├── 📄 globals.css        # Global styles
-│   │   ├── 📄 layout.tsx         # Root layout + SEO
-│   │   ├── 📄 page.tsx           # Home page
-│   │   ├── 📄 robots.ts          # Robots.txt generator
-│   │   └── 📄 sitemap.ts         # Sitemap generator
+│   │   ├── api/
+│   │   │   ├── checkout/route.ts        # Stripe checkout API
+│   │   │   └── webhooks/stripe/route.ts # Stripe webhook handler
+│   │   │
+│   │   └── [locale]/             # Locale-based routing
+│   │       ├── layout.tsx        # Main layout (providers, SEO)
+│   │       ├── page.tsx          # Home page
+│   │       ├── about/
+│   │       ├── activities/
+│   │       ├── careers/
+│   │       ├── checkout/         # Stripe checkout page
+│   │       ├── contact/          # Contact form + map
+│   │       ├── cookie-policy/    # Cookie policy
+│   │       ├── events/
+│   │       ├── hotels/
+│   │       ├── login/
+│   │       ├── places/
+│   │       ├── privacy/
+│   │       ├── signup/
+│   │       ├── support/
+│   │       └── terms/
 │   │
-│   ├── 📁 components/            # Reusable components
-│   │   ├── 📄 Header.tsx         # Navigation header
-│   │   ├── 📄 Footer.tsx         # Site footer
-│   │   ├── 📄 SearchFilters.tsx  # Search & filter UI
-│   │   ├── 📄 PageLayout.tsx     # Page wrapper
-│   │   ├── 📄 HotelCard.tsx      # Hotel display card
-│   │   ├── 📄 EventCard.tsx      # Event display card
-│   │   ├── 📄 ActivityCard.tsx   # Activity display card
-│   │   ├── 📄 PlaceCard.tsx      # Place display card
-│   │   ├── 📄 SectionHeader.tsx  # Section title
-│   │   └── 📄 GroupTripBanner.tsx # CTA banner
+│   ├── components/
+│   │   ├── Header.tsx            # Navigation with theme toggle + language switcher
+│   │   ├── Footer.tsx            # Site footer with links
+│   │   ├── SearchFilters.tsx     # Search & filter UI
+│   │   ├── PageLayout.tsx        # Page wrapper
+│   │   ├── HotelCard.tsx         # Hotel display card
+│   │   ├── EventCard.tsx         # Event display card
+│   │   ├── ActivityCard.tsx      # Activity display card
+│   │   ├── PlaceCard.tsx         # Place display card
+│   │   ├── SectionHeader.tsx     # Section title with "See all" link
+│   │   ├── GroupTripBanner.tsx    # CTA banner
+│   │   ├── ThemeToggle.tsx       # Light/dark mode toggle
+│   │   ├── LanguageSwitcher.tsx  # Language dropdown
+│   │   ├── CookieConsent.tsx     # GDPR cookie banner
+│   │   ├── WhatsAppButton.tsx    # Floating WhatsApp button
+│   │   ├── EmergencyBanner.tsx   # Travel advisory banner
+│   │   ├── Testimonials.tsx      # Customer reviews section
+│   │   ├── Gallery.tsx           # Image gallery section
+│   │   ├── GoogleMap.tsx         # Google Maps embed
+│   │   └── StripeProvider.tsx    # Stripe Elements wrapper
 │   │
-│   └── 📁 lib/                   # Utilities
-│       └── 📄 data.ts            # Data & types
+│   ├── i18n/
+│   │   ├── routing.ts            # Locale config (locales, default, prefix)
+│   │   ├── request.ts            # Server request config
+│   │   └── navigation.ts         # Locale-aware Link, useRouter, etc.
+│   │
+│   ├── lib/
+│   │   ├── data.ts               # Data types & mock data
+│   │   └── stripe.ts             # Stripe server instance
+│   │
+│   └── middleware.ts             # next-intl locale routing middleware
 │
-├── 📄 .env.example               # Environment template
-├── 📄 .gitignore                 # Git ignore rules
-├── 📄 eslint.config.mjs          # ESLint 9 flat config
-├── 📄 next.config.js             # Next.js config
-├── 📄 package.json               # Dependencies
-├── 📄 postcss.config.js          # PostCSS config (Tailwind 4)
-├── 📄 tsconfig.json              # TypeScript config
-└── 📄 vercel.json                # Vercel config
+├── .env.example                  # Environment variable template
+├── next.config.mjs               # Next.js config with next-intl plugin
+├── package.json
+├── tsconfig.json
+└── vercel.json                   # Vercel deployment config
 ```
 
 ---
 
-## Developer Guide
+## Internationalization (i18n)
 
-### Creating a New Page
+Kikeroo uses [next-intl](https://next-intl.dev/) for internationalization with 6 supported locales.
 
-**Step 1:** Create route folder
+### Supported Languages
 
-```bash
-mkdir -p src/app/new-page
-```
+| Code | Language | URL Pattern |
+|------|----------|-------------|
+| `en` | English | `/` (default, no prefix) |
+| `fr` | French | `/fr/...` |
+| `de` | German | `/de/...` |
+| `es` | Spanish | `/es/...` |
+| `nl` | Dutch | `/nl/...` |
+| `it` | Italian | `/it/...` |
 
-**Step 2:** Create page component (`src/app/new-page/page.tsx`)
+English is the default locale and uses `localePrefix: 'as-needed'`, meaning English URLs have no `/en/` prefix.
 
-```tsx
-import PageLayout from '@/components/PageLayout'
+### Translation Files
 
-export default function NewPage() {
-  return (
-    <PageLayout>
-      <div className="bg-[#0d1b2a] min-h-screen py-16 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-white text-4xl font-bold mb-8">Page Title</h1>
-          {/* Content */}
-        </div>
-      </div>
-    </PageLayout>
-  )
-}
-```
-
-**Step 3:** Add SEO metadata (`src/app/new-page/layout.tsx`)
-
-```tsx
-import { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: 'Page Title',
-  description: 'Page description for search engines.',
-  openGraph: {
-    title: 'Page Title | Kikeroo',
-    description: 'Page description for social sharing.',
-  },
-  alternates: {
-    canonical: 'https://kikeroo.com/new-page',
-  },
-}
-
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return children
-}
-```
-
-**Step 4:** Add to sitemap (`src/app/sitemap.ts`)
-
-```tsx
-{
-  url: `${baseUrl}/new-page`,
-  lastModified: new Date(),
-  changeFrequency: 'monthly',
-  priority: 0.7,
-},
-```
-
-**Step 5:** Add navigation link (Header/Footer if needed)
-
----
-
-### Creating a New Component
-
-**Step 1:** Create component file (`src/components/NewComponent.tsx`)
-
-```tsx
-// Define props interface
-interface NewComponentProps {
-  title: string
-  subtitle?: string
-  onClick?: () => void
-}
-
-// Export component
-export default function NewComponent({
-  title,
-  subtitle,
-  onClick
-}: NewComponentProps) {
-  return (
-    <div
-      className="bg-kik-dark rounded-lg p-6 hover:bg-opacity-80 transition cursor-pointer"
-      onClick={onClick}
-    >
-      <h3 className="text-white text-xl font-semibold">{title}</h3>
-      {subtitle && (
-        <p className="text-gray-400 mt-2">{subtitle}</p>
-      )}
-    </div>
-  )
-}
-```
-
-**Step 2:** For interactive components, add `'use client'`
-
-```tsx
-'use client'
-
-import { useState } from 'react'
-
-export default function InteractiveComponent() {
-  const [isOpen, setIsOpen] = useState(false)
-
-  return (
-    <button onClick={() => setIsOpen(!isOpen)}>
-      {isOpen ? 'Close' : 'Open'}
-    </button>
-  )
-}
-```
-
----
-
-### Adding New Data
-
-Edit `src/lib/data.ts`:
-
-```tsx
-// 1. Define interface
-export interface Restaurant {
-  id: number
-  name: string
-  cuisine: string
-  location: string
-  rating: number
-  image: string
-}
-
-// 2. Add data array
-export const restaurants: Restaurant[] = [
-  {
-    id: 1,
-    name: 'La Maison',
-    cuisine: 'French',
-    location: 'Paris, France',
-    rating: 4.8,
-    image: '/images/restaurant-1.png',
-  },
-  // ... more items
-]
-```
-
----
-
-## Component Architecture
-
-### Component Hierarchy
-
-```
-App
-├── Layout (SEO, global styles)
-│   ├── Header (navigation)
-│   ├── Page Content
-│   │   ├── PageLayout (wrapper with search)
-│   │   │   ├── SearchFilters
-│   │   │   └── Content Grid
-│   │   │       ├── HotelCard
-│   │   │       ├── EventCard
-│   │   │       ├── ActivityCard
-│   │   │       └── PlaceCard
-│   │   └── GroupTripBanner
-│   └── Footer (links, slogan)
-```
-
-### Component Types
-
-| Type | Directive | Use Case |
-|------|-----------|----------|
-| Server Component | (default) | Static content, data fetching |
-| Client Component | `'use client'` | Interactivity, hooks, browser APIs |
-
-### When to Use `'use client'`
-
-```tsx
-// ✅ USE 'use client' for:
-- useState, useEffect, useRef hooks
-- onClick, onChange event handlers
-- Browser APIs (localStorage, window)
-- Third-party client libraries
-
-// ❌ DON'T USE for:
-- Static content display
-- Server-side data fetching
-- SEO metadata
-```
-
----
-
-## Styling Guide
-
-### Custom Colors
-
-```css
-/* Defined in src/app/globals.css using Tailwind CSS 4 @theme */
-@theme {
-  --color-kik-blue: rgb(15, 84, 115);    /* Primary blue */
-  --color-kik-gold: rgb(238, 188, 73);   /* Accent gold */
-  --color-kik-dark: rgba(18, 24, 44, 0.8); /* Dark background */
-}
-```
-
-### Usage Examples
-
-```tsx
-// Buttons
-<button className="bg-kik-gold text-black font-semibold px-6 py-3 rounded hover:bg-opacity-80 transition">
-  Primary Button
-</button>
-
-<button className="bg-kik-blue text-white font-semibold px-6 py-3 rounded hover:bg-opacity-80 transition">
-  Secondary Button
-</button>
-
-// Cards
-<div className="bg-kik-dark rounded-lg p-6">
-  Card Content
-</div>
-
-// Text
-<h1 className="text-white text-4xl font-bold">Heading</h1>
-<p className="text-gray-400">Body text</p>
-<span className="text-kik-gold">Highlighted text</span>
-```
-
-### Responsive Breakpoints
-
-```tsx
-// Mobile first approach
-<div className="
-  text-sm          // Mobile (default)
-  md:text-base     // Tablet (768px+)
-  lg:text-lg       // Desktop (1024px+)
-  xl:text-xl       // Large (1280px+)
-">
-
-// Grid layouts
-<div className="
-  grid
-  grid-cols-1      // Mobile: 1 column
-  sm:grid-cols-2   // Small: 2 columns
-  lg:grid-cols-3   // Desktop: 3 columns
-  xl:grid-cols-4   // Large: 4 columns
-  gap-6
-">
-```
-
----
-
-## State Management
-
-### Local State (useState)
-
-```tsx
-'use client'
-import { useState } from 'react'
-
-export default function SearchFilters() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [filters, setFilters] = useState<string[]>([])
-
-  return (
-    <input
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-    />
-  )
-}
-```
-
-### URL State (searchParams)
-
-```tsx
-'use client'
-import { useSearchParams, useRouter } from 'next/navigation'
-
-export default function FilteredList() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-
-  const location = searchParams.get('location') || ''
-
-  const updateFilter = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams)
-    params.set(key, value)
-    router.push(`?${params.toString()}`)
-  }
-}
-```
-
-### Form State
-
-```tsx
-'use client'
-import { useState } from 'react'
-
-export default function ContactForm() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  })
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Submit logic
-  }
-}
-```
-
----
-
-## API Integration
-
-### Future API Structure
-
-```tsx
-// src/lib/api.ts
-const API_BASE = process.env.NEXT_PUBLIC_API_URL
-
-export async function fetchHotels(params?: {
-  location?: string
-  checkIn?: string
-  checkOut?: string
-}) {
-  const searchParams = new URLSearchParams(params as Record<string, string>)
-  const response = await fetch(`${API_BASE}/hotels?${searchParams}`)
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch hotels')
-  }
-
-  return response.json()
-}
-```
-
-### Server Component Data Fetching
-
-```tsx
-// src/app/hotels/page.tsx
-async function getHotels() {
-  const res = await fetch('https://api.kikeroo.com/hotels', {
-    next: { revalidate: 3600 } // Cache for 1 hour
-  })
-  return res.json()
-}
-
-export default async function HotelsPage() {
-  const hotels = await getHotels()
-
-  return (
-    <div>
-      {hotels.map(hotel => (
-        <HotelCard key={hotel.id} {...hotel} />
-      ))}
-    </div>
-  )
-}
-```
-
----
-
-## Performance
-
-### Image Optimization
-
-```tsx
-import Image from 'next/image'
-
-// ✅ Use Next.js Image component
-<Image
-  src="/images/hotel.png"
-  alt="Hotel description"
-  width={400}
-  height={300}
-  className="object-cover"
-  priority={isAboveFold} // Add for LCP images
-/>
-```
-
-### Code Splitting
-
-```tsx
-// Dynamic imports for heavy components
-import dynamic from 'next/dynamic'
-
-const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
-  loading: () => <div>Loading...</div>,
-  ssr: false // Disable SSR if needed
-})
-```
-
-### Suspense Boundaries
-
-```tsx
-import { Suspense } from 'react'
-
-export default function Page() {
-  return (
-    <Suspense fallback={<LoadingSkeleton />}>
-      <AsyncComponent />
-    </Suspense>
-  )
-}
-```
-
----
-
-## Security
-
-### Environment Variables
-
-```bash
-# .env.local (never commit!)
-NEXT_PUBLIC_SITE_URL=https://kikeroo.com  # Public (exposed to browser)
-API_SECRET_KEY=xxx                         # Private (server only)
-```
-
-### Input Validation
-
-```tsx
-// Always validate user input
-const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault()
-
-  // Validate email
-  if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-    setError('Invalid email address')
-    return
-  }
-
-  // Validate password
-  if (password.length < 8) {
-    setError('Password must be at least 8 characters')
-    return
-  }
-}
-```
-
-### Security Headers (vercel.json)
+Translation files are located in `messages/{locale}.json`. Each file contains namespaced translations:
 
 ```json
 {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" }
-      ]
-    }
-  ]
+  "Header": {
+    "hotels": "Hotels",
+    "events": "Events",
+    "activities": "Activities"
+  },
+  "Home": {
+    "heroTitle": "Travel Together, Create Memories Forever",
+    "heroSubtitle": "Plan unforgettable group trips..."
+  }
 }
 ```
 
----
+### Using Translations
 
-## Accessibility
-
-### Semantic HTML
-
+**In client components:**
 ```tsx
-// ✅ Use proper elements
-<header>...</header>
-<nav>...</nav>
-<main>...</main>
-<article>...</article>
-<footer>...</footer>
+'use client';
+import { useTranslations } from 'next-intl';
 
-// ✅ Use heading hierarchy
-<h1>Page Title</h1>
-  <h2>Section</h2>
-    <h3>Subsection</h3>
+export default function MyComponent() {
+  const t = useTranslations('Header');
+  return <h1>{t('hotels')}</h1>;
+}
 ```
 
-### ARIA Labels
-
+**In server components / metadata:**
 ```tsx
-// ✅ Add labels for screen readers
-<button aria-label="Close menu">
-  <FiX />
-</button>
+import { getTranslations } from 'next-intl/server';
 
-<input
-  type="search"
-  aria-label="Search hotels"
-  placeholder="Search..."
-/>
+export async function generateMetadata() {
+  const t = await getTranslations('Home');
+  return { title: t('heroTitle') };
+}
 ```
 
-### Keyboard Navigation
+### Locale-Aware Navigation
+
+Always use navigation utilities from `@/i18n/navigation` instead of `next/link` or `next/navigation`:
 
 ```tsx
-// ✅ Ensure focusable elements
-<button onClick={handleClick}>Clickable</button>
+import { Link, useRouter, usePathname } from '@/i18n/navigation';
 
-// ✅ Handle keyboard events
-<div
-  role="button"
-  tabIndex={0}
-  onClick={handleClick}
-  onKeyDown={(e) => e.key === 'Enter' && handleClick()}
->
+// Links automatically include locale prefix
+<Link href="/hotels">Hotels</Link>
 ```
+
+### Adding a New Language
+
+1. Add the locale code to `src/i18n/routing.ts`
+2. Create `messages/{locale}.json` with all namespaces translated
+3. Rebuild — the new locale is automatically available
 
 ---
 
-## Testing
+## Theme System
 
-### Manual Testing Checklist
+Kikeroo supports light and dark themes using [next-themes](https://github.com/pacocoursey/next-themes) with Tailwind CSS 4's class-based dark mode.
 
+### How It Works
+
+- `globals.css` defines `@custom-variant dark (&:where(.dark, .dark *));` for Tailwind 4
+- `next-themes` manages the `dark` class on `<html>`
+- `ThemeToggle` component in the Header lets users switch themes
+- Default theme is dark
+
+### Theme-Aware Classes
+
+```tsx
+// Background
+className="bg-gray-50 dark:bg-kik-darker"
+
+// Text
+className="text-slate-900 dark:text-white"
+
+// Borders
+className="border-slate-200 dark:border-white/10"
+
+// Cards
+className="bg-white dark:bg-white/5 shadow-sm dark:shadow-none"
 ```
-Before deployment, verify:
 
-□ All pages load without console errors
-□ Navigation links work correctly
-□ Search filters function properly
-□ Dropdowns open/close correctly
-□ Forms validate input
-□ Mobile responsive design works
-□ Images load with proper alt text
-□ SEO meta tags present (view source)
-□ Sitemap accessible at /sitemap.xml
-□ Robots.txt accessible at /robots.txt
-```
+### Always-Dark Sections
 
-### Build Validation
+Some sections stay dark in both themes for visual consistency:
+- Header (over dark background/hero image)
+- Login/Signup pages (over background image)
+- Hero section on the home page
+- GroupTripBanner (over background image)
+
+---
+
+## Stripe Payments
+
+Kikeroo integrates [Stripe](https://stripe.com/) for payment processing via Checkout Sessions.
+
+### Setup
+
+1. Create a [Stripe account](https://dashboard.stripe.com/register)
+2. Get your API keys from the Stripe Dashboard
+3. Set environment variables:
+   ```bash
+   STRIPE_SECRET_KEY=sk_test_...
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   ```
+
+### Flow
+
+1. User clicks "Pay Now" on the checkout page
+2. Frontend calls `POST /api/checkout` with item details
+3. Server creates a Stripe Checkout Session and returns the URL
+4. User is redirected to Stripe's hosted checkout page
+5. After payment, user returns to `/checkout?status=success` or `?status=cancelled`
+6. Stripe sends webhook events to `POST /api/webhooks/stripe`
+
+### Testing
+
+Use Stripe's [test card numbers](https://docs.stripe.com/testing):
+- Success: `4242 4242 4242 4242`
+- Decline: `4000 0000 0000 0002`
+
+### Webhook Setup (Local)
 
 ```bash
-# Check for linting errors
-npm run lint
+# Install Stripe CLI
+brew install stripe/stripe-cli/stripe
 
-# Check TypeScript types
-npx tsc --noEmit
-
-# Build for production
-npm run build
-
-# Test production build
-npm start
+# Forward webhooks to local server
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
 ```
+
+---
+
+## Cookie Consent
+
+Kikeroo includes a GDPR-compliant cookie consent banner.
+
+### Features
+
+- Three equal-weight buttons: Customize, Reject All, Accept All
+- Granular cookie categories: Essential (always on), Analytics, Marketing, Personalization
+- Consent stored in a `kikeroo-consent` cookie via `js-cookie`
+- Banner only appears when no consent cookie exists
+- Fully translated in all 6 languages
+
+### Cookie Policy
+
+A dedicated cookie policy page at `/cookie-policy` explains each cookie category in detail.
+
+---
+
+## Environment Variables
+
+Create a `.env.local` file from the template:
+
+```bash
+cp .env.example .env.local
+```
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_SITE_URL` | Yes | Your site URL (e.g., `https://kikeroo.com`) |
+| `STRIPE_SECRET_KEY` | No | Stripe secret key (server-side) |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | No | Stripe publishable key (client-side) |
+| `STRIPE_WEBHOOK_SECRET` | No | Stripe webhook signing secret |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | No | Google Maps Embed API key |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` | No | WhatsApp number for floating button |
+
+Stripe and Google Maps features degrade gracefully when keys are not set.
+
+---
+
+## Pages Reference
+
+| Page | Route | Description |
+|------|-------|-------------|
+| Home | `/` | Landing page with search, listings, testimonials, gallery |
+| Hotels | `/hotels` | Hotel listings |
+| Events | `/events` | Event listings |
+| Activities | `/activities` | Activity listings |
+| Places | `/places` | Travel destinations |
+| About | `/about` | Company info |
+| Contact | `/contact` | Contact form with Google Maps |
+| Support | `/support` | Help center |
+| Careers | `/careers` | Job listings |
+| Checkout | `/checkout` | Stripe payment page |
+| Login | `/login` | Authentication |
+| Sign Up | `/signup` | Registration |
+| Terms | `/terms` | Terms of service |
+| Privacy | `/privacy` | Privacy policy |
+| Cookie Policy | `/cookie-policy` | Cookie usage details |
+
+All routes are available in all 6 locales (e.g., `/fr/hotels`, `/de/events`).
 
 ---
 
@@ -725,58 +425,26 @@ npm i -g vercel
 vercel
 
 # Option 2: Git Integration
-# Push to GitHub → Auto-deploy
+# Push to GitHub -> Auto-deploy
 ```
 
 ### Environment Variables on Vercel
 
-1. Go to Vercel Dashboard
-2. Select Project → Settings → Environment Variables
-3. Add variables:
-   - `NEXT_PUBLIC_SITE_URL`
-   - `NEXT_PUBLIC_GA_ID` (optional)
+1. Go to Vercel Dashboard > Project > Settings > Environment Variables
+2. Add all variables from the [Environment Variables](#environment-variables) section
 
 ### Build Output
 
+The production build generates 96 static pages (16 pages x 6 locales):
+
 ```
-Route                    Size      First Load JS
-─────────────────────────────────────────────────
-/                        189 B     116 kB
-/hotels                  2.11 kB   118 kB
-/events                  2.06 kB   118 kB
-/activities              2.07 kB   118 kB
-/careers                 1.16 kB   117 kB
-/sitemap.xml             154 B     102 kB
-/robots.txt              154 B     102 kB
-```
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-| Issue | Solution |
-|-------|----------|
-| Port 3000 in use | `lsof -ti:3000 \| xargs kill -9` |
-| Module not found | `rm -rf node_modules .next && npm install` |
-| TypeScript errors | `npx tsc --noEmit` to check |
-| Tailwind not working | Restart dev server |
-| Build fails | Check console for specific error |
-
-### Debug Tools
-
-```tsx
-// Debug component renders
-useEffect(() => {
-  console.log('Component mounted')
-  return () => console.log('Component unmounted')
-}, [])
-
-// Debug state changes
-useEffect(() => {
-  console.log('State updated:', state)
-}, [state])
+Route (app)                                    Size
+/[locale]                                      ...
+/[locale]/about                                ...
+/[locale]/hotels                               ...
+... (96 total static pages)
+/sitemap.xml
+/robots.txt
 ```
 
 ---
@@ -805,39 +473,13 @@ git push origin feature/your-feature
 ```
 type(scope): description
 
-Types:
-- feat:     New feature
-- fix:      Bug fix
-- docs:     Documentation
-- style:    Formatting
-- refactor: Code restructuring
-- test:     Adding tests
-- chore:    Maintenance
+Types: feat, fix, docs, style, refactor, test, chore
 
 Examples:
-feat(hotels): add price filter
-fix(search): resolve dropdown issue
-docs(readme): update setup guide
+feat(i18n): add Portuguese translations
+fix(theme): resolve flash of unstyled content
+docs(readme): update deployment guide
 ```
-
----
-
-## Pages Reference
-
-| Page | Route | Description |
-|------|-------|-------------|
-| Home | `/` | Landing with search |
-| Hotels | `/hotels` | Hotel listings |
-| Events | `/events` | Event listings |
-| Activities | `/activities` | Activity listings |
-| Places | `/places` | Destinations |
-| About | `/about` | Company info |
-| Support | `/support` | Help center |
-| Careers | `/careers` | Job listings |
-| Login | `/login` | Authentication |
-| Sign Up | `/signup` | Registration |
-| Terms | `/terms` | Legal terms |
-| Privacy | `/privacy` | Privacy policy |
 
 ---
 
@@ -847,18 +489,8 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-## Contact
-
-| Channel | Link |
-|---------|------|
-| Website | [kikeroo.com](https://kikeroo.com) |
-| Email | support@kikeroo.com |
-| Twitter | [@kikeroo](https://twitter.com/kikeroo) |
-
----
-
 <p align="center">
   <strong>"Travel Together, Create Memories Forever"</strong>
   <br><br>
-  Made with ❤️ for travelers worldwide
+  Made with love for travelers worldwide
 </p>
